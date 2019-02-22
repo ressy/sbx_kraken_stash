@@ -5,8 +5,7 @@ ruleorder: kraken_classify_stashed > kraken_classify
 ruleorder: kraken_report_stashed > kraken_report
 ruleorder: kraken_mpa_report_stashed > kraken_mpa_report
 
-Cfg['kraken_stash']['kraken_db_fp'] = Path(Cfg['kraken_stash']['db_root']) /
-    Cfg['classify']['kraken_db_fp'].name
+Cfg['kraken_stash']['kraken_db_fp'] = Path(Cfg['kraken_stash']['db_root']) / Cfg['classify']['kraken_db_fp'].name
 
 kraken_dbfiles = expand(str(Cfg['kraken_stash']['kraken_db_fp'] / "{item}"),
     item = [
