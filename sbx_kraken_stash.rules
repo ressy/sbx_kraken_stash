@@ -1,0 +1,82 @@
+# Rule order tells Snakemake what rules take priority if multiple rules provide
+# the same outputs.  Here we'll prefer the extension's kraken-related rules to
+# produce the same output but using a locally-stashed database.
+ruleorder: kraken_classify_stashed > kraken_classify
+ruleorder: kraken_report_stashed > kraken_report
+ruleorder: kraken_mpa_report_stashed > kraken_mpa_report
+
+Cfg['kraken_stash']['kraken_db_fp'] = Path(Cfg['kraken_stash']['db_root']) /
+    Cfg['classify']['kraken_db_fp'].name
+
+kraken_dbfiles = expand(str(Cfg['kraken_stash']['kraken_db_fp'] / "{item}"),
+    item = [
+        "taxonomy/nodes.dmp",
+        "taxonomy/names.dmp",
+        "database.kdb",
+        "database.idx"])
+
+rule kraken_stash_file:
+    output: str(Cfg['kraken_stash']['kraken_db_fp'] / "{item}")
+    input: str(Cfg['classify']['kraken_db_fp'] / "{item}")
+    shell:
+        """
+            mkdir -p $(dirname "{output}")
+            cp -u "{input}" "{output}"
+        """
+
+rule kraken_classify_stashed:
+    input:
+        fastq = expand(
+            str(QC_FP/'decontam'/'{{sample}}_{rp}.fastq.gz'),
+            rp = Pairs),
+        kraken_dbfiles = kraken_dbfiles
+    output:
+        str(CLASSIFY_FP/'kraken'/'raw'/'{sample}-raw.tsv')
+    params:
+        paired_end = "--paired" if Cfg['all']['paired_end'] else "",
+        db = Cfg['kraken_stash']['kraken_db_fp']
+    threads:
+        Cfg['classify']['threads']
+    shell:
+        """
+        vmtouch -t {input.kraken_dbfiles}
+        kraken \
+        --db {params.db} \
+        --threads {threads} \
+        {params.paired_end} \
+        --gzip-compressed \
+        --fastq-input \
+        {input.fastq} > {output}
+        """
+
+rule kraken_report_stashed:
+    input:
+        kraken_raw = str(CLASSIFY_FP/'kraken'/'raw'/'{sample}-raw.tsv'),
+        kraken_dbfiles = kraken_dbfiles
+    output:
+        str(CLASSIFY_FP/'kraken'/'{sample}-taxa.tsv')
+    params:
+        db = Cfg['kraken_stash']['kraken_db_fp']
+    shell:
+        """
+        vmtouch -t {input.kraken_dbfiles}
+        kraken-report \
+        --db {params.db} \
+        {input.kraken_raw} > {output}
+        """
+
+rule kraken_mpa_report_stashed:
+    input:
+        kraken_raw = str(CLASSIFY_FP/'kraken'/'raw'/'{sample}-raw.tsv'),
+        kraken_dbfiles = kraken_dbfiles
+    output:
+        str(CLASSIFY_FP/'kraken'/'{sample}-mpa.tsv')
+    params:
+        db = Cfg['kraken_stash']['kraken_db_fp']
+    shell:
+        """
+        vmtouch -t {input.kraken_dbfiles}
+        kraken-mpa-report \
+        --db {params.db} \
+        {input.kraken_raw} > {output}
+        """

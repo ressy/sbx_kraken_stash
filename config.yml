@@ -1,0 +1,4 @@
+# The essential files defined in the classify section's kraken_db_fp will be
+# copied here.
+kraken_stash:
+  db_root: /scratch/kraken_stash
