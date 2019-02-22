@@ -1,10 +1,10 @@
-# Kraken, using a locally-stashed database
+# Sunbeam's Kraken, using a locally-stashed database
 
-This extension will stash a copy of a Kraken 1 database to a specified
-location, keep that copy cached in memory with [vmtouch], and run [Sunbeam]'s
-kraken rules using the stashed database.  vmtouch isn't currently in the common
-conda channels as far as I can see, so this currently requires a vmtouch
-executable on your PATH.
+This [Sunbeam] extension will stash a copy of a Kraken 1 database to a
+specified location, keep that copy cached in memory with [vmtouch], and run
+Sunbeam's kraken rules using the stashed database.  vmtouch isn't currently in
+the common conda channels as far as I can see, so this currently requires a
+vmtouch executable on your PATH.
 
 I've found this to be necessary on one particularly strange filesystem
 ([IBM Spectrum Scale]) due to the [GPFS pagepool] configuration.
