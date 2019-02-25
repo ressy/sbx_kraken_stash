@@ -7,8 +7,9 @@ Sunbeam's classification rules using the stashed database.
 I've found this to be necessary on one particularly strange filesystem
 ([IBM Spectrum Scale]) due to the [GPFS pagepool] configuration.
 This should *not* be needed on either NFS or any common local filesystem, since
-[the ordinary caching in Linux](https://www.linuxatemyram.com/) works as
-expected for those.
+[the ordinary caching in Linux](https://www.linuxatemyram.com/) that
+[kraken relies on](https://ccb.jhu.edu/software/kraken/MANUAL.html#memory-usage-and-efficiency)
+works as expected for those.
 
 ## Installation
 
