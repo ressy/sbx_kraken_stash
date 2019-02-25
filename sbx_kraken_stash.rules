@@ -38,7 +38,8 @@ rule kraken_classify_stashed:
         Cfg['classify']['threads']
     shell:
         """
-        vmtouch -t {input.kraken_dbfiles}
+        vmtouch -v {input.kraken_dbfiles} | grep 'Resident Pages: .* 100%' || \
+            vmtouch -t {input.kraken_dbfiles}
         kraken \
         --db {params.db} \
         --threads {threads} \
@@ -58,7 +59,8 @@ rule kraken_report_stashed:
         db = Cfg['kraken_stash']['kraken_db_fp']
     shell:
         """
-        vmtouch -t {input.kraken_dbfiles}
+        vmtouch -v {input.kraken_dbfiles} | grep 'Resident Pages: .* 100%' || \
+            vmtouch -t {input.kraken_dbfiles}
         kraken-report \
         --db {params.db} \
         {input.kraken_raw} > {output}
@@ -74,7 +76,8 @@ rule kraken_mpa_report_stashed:
         db = Cfg['kraken_stash']['kraken_db_fp']
     shell:
         """
-        vmtouch -t {input.kraken_dbfiles}
+        vmtouch -v {input.kraken_dbfiles} | grep 'Resident Pages: .* 100%' || \
+            vmtouch -t {input.kraken_dbfiles}
         kraken-mpa-report \
         --db {params.db} \
         {input.kraken_raw} > {output}
